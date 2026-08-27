@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.example.models.Product;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import javax.sql.DataSource;
 import java.util.List;
 import java.sql.ResultSet;
