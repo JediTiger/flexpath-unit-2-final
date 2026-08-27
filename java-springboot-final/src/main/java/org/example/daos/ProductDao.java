@@ -21,8 +21,9 @@ import java.sql.SQLException;
 */
 
 // Fields are id, product and price
-
+// DAO's job is to be the middleman for the database. Controller asks DAO to get data and send it thru
 // Added requirement Component
+
 @Component
 public class ProductDao {
 
