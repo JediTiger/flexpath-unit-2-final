@@ -1,33 +1,32 @@
 package org.example.controllers;
 
 import org.example.daos.OrderDao;
-import org.example.daos.ProductDao;
+import org.example.models.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.example.models.Product;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 
 /* TODO: Mappings as follows:
-GET /orders - Retrieves all orders.
-GET /orders/{id} - Retrieves an order by the id in the path, return a 404 NOT FOUND status code if the order is not found.
-POST /orders - Creates a new order from the request body and returns the created order with a 201 CREATED http status code.
-PUT /orders/{id} - Updates an existing order from the request body and returns the updated order,
+DONE: GET /orders - Retrieves all orders.
+DONE: GET /orders/{id} - Retrieves an order by the id in the path, return a 404 NOT FOUND status code if the order is not found.
+DONE: POST /orders - Creates a new order from the request body and returns the created order with a 201 CREATED http status code.
+DONE: PUT /orders/{id} - Updates an existing order from the request body and returns the updated order,
    return a 404 NOT FOUND status code if the order is not found.
-DELETE /orders/{id} - Deletes an order by the id in the path and returns the number of rows affected,
+DONE: DELETE /orders/{id} - Deletes an order by the id in the path and returns the number of rows affected,
    return a 404 NOT FOUND status code if the order is not found.
 */
 
-// Fields are: id, name and price
+// Fields are: id and username
 
 @RestController
-// TODO: Mapping
+@RequestMapping("/orders")
 // TODO: From UserDao may need to correct
 @PreAuthorize("isAuthenticated()")
 // This controller will have classes that match those from the ProductDao
@@ -36,12 +35,45 @@ public class OrderController {
    private OrderDao orderDao;
 
    // get all
+   @GetMapping
+   public List<Order> getAll() {
+      return orderDao.getAll();
+   }
 
    // get by id
+   @GetMapping("/{id}")
+   public Order get(@PathVariable int id) {
+      Order order = orderDao.getById(id);
+      if (order == null) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+      }
+      return order;
+   }
 
    // create
+   @ResponseStatus(HttpStatus.CREATED)
+   @PostMapping
+   public Order create(@RequestBody Order order) {
+      return orderDao.create(order);
+   }
 
    // update
+   @PutMapping("/{id}")
+   public Order update(@RequestBody Order order, @PathVariable int id) {
+      Order existingOrder = orderDao.getById(id);
+      if (existingOrder == null) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+      }
+      order.setId(id);
+      return orderDao.update(order);
+   }
 
    // delete
+   @DeleteMapping("/{id}")
+   public void delete(@PathVariable int id) {
+      int affectedRows = orderDao.delete(id);
+      if (affectedRows == 0) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+      }
+   }
 }

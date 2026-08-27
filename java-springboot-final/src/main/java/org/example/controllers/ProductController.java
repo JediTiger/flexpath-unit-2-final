@@ -27,7 +27,6 @@ DONE: DELETE /products/{id} - Deletes a product by the id in the path and return
 
 @RestController
 @RequestMapping("/products")
-// TODO: From UserDao may need to correct
 @PreAuthorize("isAuthenticated()")
 // This controller will have classes that match those from the ProductDao
 public class ProductController {
@@ -51,7 +50,7 @@ public class ProductController {
    }
 
    // create
-   // TODO: Response status required?
+   @ResponseStatus(HttpStatus.CREATED)
    @PostMapping
    public Product create(@RequestBody Product product) {
       return productDao.create(product);
