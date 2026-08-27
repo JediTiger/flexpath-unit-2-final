@@ -1,6 +1,7 @@
 package org.example.daos;
 
 import org.example.exceptions.DaoException;
+import org.example.models.OrderItem;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,16 +11,8 @@ import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/*
-  From the README.md, my task is to create DAO and controller classes for 3 of the 5 SQL tables provided:
-  Product, Order & OrderItem. So this should be 6 files.
 
-  To start off small, I'm starting with Product since that's the basis for everything else.
-  You have to have products to order.
-*/
-
-// Fields are id and username
-// DAO's job is to be the middleman for the database. Controller asks DAO to get data and send it thru
+// Fields are id, order_id, product_id and quantity
 
 @Component
 public class OrderItemDao {
@@ -35,15 +28,63 @@ public class OrderItemDao {
       create will get a new id for the new order
     */
 
-   // TODO: getAll - Retrieves all orders from the table
+   // getAll - Retrieves all orders items from the table
+   public List<OrderItem> getAll() {
+      String sql = "SELECT * FROM order_items ORDER BY id;";
+      return jdbcTemplate.query(sql, this::connectDBToOrderItem);
+   }
 
-   // TODO: getById - Retrieves an order by its id
+   // getById - Retrieves an order items by its id
+   public OrderItem getById(int id) {
+      try {
+         String sql = "SELECT * FROM order_items WHERE id = ?;";
+         return jdbcTemplate.queryForObject(sql, this::connectDBToOrderItem, id);
+      } catch (EmptyResultDataAccessException e) {
+         return null;
+      }
+   }
 
-   // TODO: create order - Creates a new order in the table
+   // create order - Creates a new order items in the table
+   public OrderItem create(OrderItem orderItem) {
+      String sql = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?);";
+      try {
+         jdbcTemplate.update(sql, orderItem.getOrderId(), orderItem.getProductId(), orderItem.getQuantity());
+         String findSql = "SELECT * FROM order_items WHERE order_id = ? ORDER BY id DESC LIMIT 1;";
+         return jdbcTemplate.queryForObject(findSql, this::connectDBToOrderItem, orderItem.getOrderId());
+      } catch (Exception e) {
+         throw new DaoException("Failed to create order item.");
+      }
+   }
 
-   // TODO: update order - Updates an existing order in the table
+   // update order - Updates an existing order item in the table
+   public OrderItem update(OrderItem orderItem) {
+      String sql = "UPDATE order_items SET order_id = ?, product_id = ?, quantity = ? WHERE id = ?;";
+      int rowsAffected = jdbcTemplate.update(sql,
+              orderItem.getOrderId(),
+              orderItem.getProductId(),
+              orderItem.getQuantity(),
+              orderItem.getId()
+      );
+      if (rowsAffected == 0) {
+         throw new DaoException("Zero rows affected, expected at least one.");
+      } else {
+         return getById(orderItem.getId());
+      }
+   }
 
-   // TODO: delete order - Deletes an order from the table
+   // delete order - Deletes an order item from the table
+   public int delete(int id) {
+      String sql = "DELETE FROM order_items WHERE id = ?;";
+      return jdbcTemplate.update(sql, id);
+   }
 
    // TODO: Results map from DB to order item
+   private OrderItem connectDBToOrderItem(ResultSet resultSet, int rowNumber) throws SQLException {
+      OrderItem item = new OrderItem();
+      item.setId(resultSet.getInt("id"));
+      item.setOrderId(resultSet.getInt("order_id"));
+      item.setProductId(resultSet.getInt("product_id"));
+      item.setQuantity(resultSet.getInt("quantity"));
+      return item;
+   }
 }
