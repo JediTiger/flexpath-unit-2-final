@@ -41,11 +41,27 @@ public class ProductDao {
       return jdbcTemplate.query(sql, this::connectDBToProduct);
    }
    // getById - Retrieves an item by its id
+   public Product getById(int id) {
+      try {
+         String sql = "SELECT * FROM products WHERE id = ?;";
+         return jdbcTemplate.queryForObject(sql, this::connectDBToProduct, id);
+      } catch (EmptyResultDataAccessException e) {
+         return null;
+      }
+   }
+      // create product - Creates a new item in the table
 
-   // create product - Creates a new item in the table
+      // update product - Updates an existing item in the table
 
-   // update product - Updates an existing item in the table
+      // delete product - Deletes an item from the table
 
-   // delete product - Deletes an item from the table
 
+
+      private Product connectDBToProduct(ResultSet resultSet, int rowNumber) throws SQLException {
+         Product product = new Product();
+         product.setId(resultSet.getInt("id"));
+         product.setName(resultSet.getString("name"));
+         product.setPrice(resultSet.getBigDecimal("price"));
+         return product;
+      }
 }
