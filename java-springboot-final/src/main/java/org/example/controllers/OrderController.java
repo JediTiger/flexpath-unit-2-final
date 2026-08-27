@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 
-/* TODO: Mappings as follows:
+/* Mappings as follows:
 DONE: GET /orders - Retrieves all orders.
 DONE: GET /orders/{id} - Retrieves an order by the id in the path, return a 404 NOT FOUND status code if the order is not found.
 DONE: POST /orders - Creates a new order from the request body and returns the created order with a 201 CREATED http status code.
