@@ -20,12 +20,12 @@ import java.sql.SQLException;
 
 
 /* TODO: Mappings as follows:
-POST /products - Creates a new product from the request body and returns the created product with a 201 CREATED http status code.
+DONE: POST /products - Creates a new product from the request body and returns the created product with a 201 CREATED http status code.
 DONE: GET /products - Retrieves all products.
 DONE: GET /products/{id} - Retrieves a product by the id in the path, return a 404 NOT FOUND status code if the product is not found.
-PUT /products/{id} - Updates an existing product from the request body and returns the updated product,
+DONE: PUT /products/{id} - Updates an existing product from the request body and returns the updated product,
    return a 404 NOT FOUND status code if the product is not found.
-DELETE /products/{id} - Deletes a product by the id in the path and returns the number of rows affected,
+DONE: DELETE /products/{id} - Deletes a product by the id in the path and returns the number of rows affected,
    return a 404 NOT FOUND status code if the product is not found.
 */
 
@@ -64,6 +64,22 @@ public class ProductController {
    }
 
    // update
+   @PutMapping("/{id}")
+   public Product update(@RequestBody Product product, @PathVariable int id) {
+      Product existingProduct = productDao.getById(id);
+      if (existingProduct == null) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+      }
+      product.setId(id);
+      return productDao.update(product);
+   }
 
    // delete
+   @DeleteMapping("/{id}")
+   public void delete(@PathVariable int id) {
+      int affectedRows = productDao.delete(id);
+      if (affectedRows == 0) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+      }
+   }
 }
