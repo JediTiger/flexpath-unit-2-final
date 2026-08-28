@@ -1,9 +1,6 @@
 package org.example.controllers;
 
-import org.example.daos.OrderDao;
 import org.example.daos.OrderItemDao;
-import org.example.models.Order;
-import org.example.models.OrderItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,17 +12,18 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 
-/* Mappings as follows:
-DONE: GET /orders - Retrieves all orders.
-DONE: GET /orders/{id} - Retrieves an order by the id in the path, return a 404 NOT FOUND status code if the order is not found.
-DONE: POST /orders - Creates a new order from the request body and returns the created order with a 201 CREATED http status code.
-DONE: PUT /orders/{id} - Updates an existing order from the request body and returns the updated order,
-   return a 404 NOT FOUND status code if the order is not found.
-DONE: DELETE /orders/{id} - Deletes an order by the id in the path and returns the number of rows affected,
-   return a 404 NOT FOUND status code if the order is not found.
+/* TODO: Mappings as follows:
+DONE: GET /order-items - Retrieves all order items.
+GET /order-items/{id} - Retrieves an order item by the id in the path, return a 404 NOT FOUND status code if the order item is not found.
+POST /order-items - Creates a new order item from the request body and returns the created order item with a CREATED http 201 status code.
+PUT /order-items/{id} - Updates an existing order item from the request body and returns the updated order item,
+   return a 404 NOT FOUND status code if the order item is not found.
+DELETE /order-items/{id} - Deletes an order item by the id in the path and returns the number of rows affected,
+   return a 404 NOT FOUND status code if the order item is not found.
+
 */
 
-// Fields are: id and username
+// Fields are: id, order_id, product_id and quantity
 
 @RestController
 @RequestMapping("/order-items")
