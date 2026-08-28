@@ -35,7 +35,7 @@ public class OrderItemDao {
    }
 
    // getById - Retrieves an order items by its id
-   public OrderItem getById(int id) {
+   public OrderItem getById(long id) {
       try {
          String sql = "SELECT * FROM order_items WHERE id = ?;";
          return jdbcTemplate.queryForObject(sql, this::connectDBToOrderItem, id);
@@ -78,7 +78,7 @@ public class OrderItemDao {
       return jdbcTemplate.update(sql, id);
    }
 
-   // TODO: Results map from DB to order item
+   // Results map from DB to order item
    private OrderItem connectDBToOrderItem(ResultSet resultSet, int rowNumber) throws SQLException {
       OrderItem item = new OrderItem();
       item.setId(resultSet.getInt("id"));

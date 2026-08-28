@@ -26,7 +26,7 @@ DONE: DELETE /products/{id} - Deletes a product by the id in the path and return
 // Fields are: id, name and price
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping({ "/products", "/api/products"} )
 @PreAuthorize("isAuthenticated()")
 // This controller will have classes that match those from the ProductDao
 public class ProductController {
@@ -69,10 +69,11 @@ public class ProductController {
 
    // delete
    @DeleteMapping("/{id}")
-   public void delete(@PathVariable int id) {
+   public int delete(@PathVariable int id) {
       int affectedRows = productDao.delete(id);
       if (affectedRows == 0) {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
       }
+      return affectedRows;
    }
 }

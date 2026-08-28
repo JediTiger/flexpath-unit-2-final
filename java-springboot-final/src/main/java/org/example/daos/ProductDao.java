@@ -1,7 +1,6 @@
 package org.example.daos;
 
 import org.example.exceptions.DaoException;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.example.models.Product;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ import java.sql.SQLException;
 */
 
 // Fields are id, product and price
-// DAO's job is to be the middleman for the database. Controller asks DAO to get data and send it thru
+// DAO's job is to be the middleman for the database. Controller asks DAO to get data and send it on
 
 @Component
 public class ProductDao {
@@ -39,7 +38,7 @@ public class ProductDao {
 
    // getAll - Retrieves all items from the table
    public List<Product> getAll() {
-      String sql = "SELECT * FROM web_shop.products";
+      String sql = "SELECT * FROM products";
       return jdbcTemplate.query(sql, this::connectDBToProduct);
    }
 

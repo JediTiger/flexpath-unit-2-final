@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -26,7 +24,7 @@ DONE: DELETE /orders/{id} - Deletes an order by the id in the path and returns t
 // Fields are: id and username
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping({ "/orders", "/api/orders" })
 // TODO: From UserDao may need to correct
 @PreAuthorize("isAuthenticated()")
 // This controller will have classes that match those from the ProductDao
@@ -70,10 +68,11 @@ public class OrderController {
 
    // delete
    @DeleteMapping("/{id}")
-   public void delete(@PathVariable int id) {
+   public int delete(@PathVariable int id) {
       int affectedRows = orderDao.delete(id);
       if (affectedRows == 0) {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
       }
+      return affectedRows;
    }
 }
