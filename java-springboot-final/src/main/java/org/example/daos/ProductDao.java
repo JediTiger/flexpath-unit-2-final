@@ -1,6 +1,7 @@
 package org.example.daos;
 
 import org.example.exceptions.DaoException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.example.models.Product;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ public class ProductDao {
    // Required declaration and constructor for JDBC
    private final JdbcTemplate jdbcTemplate;
 
+   @Autowired
    public ProductDao(DataSource dataSource) {
       this.jdbcTemplate = new JdbcTemplate(dataSource);
    }
@@ -52,13 +54,36 @@ public class ProductDao {
       }
    }
       // create product - Creates a new item in the table
-      public Product create(Product product) {
+/*      public Product create(Product product) {
          String sql = "INSERT INTO products (name, price) VALUES (?, ?);";
          try {
             jdbcTemplate.update(sql, product.getName(), product.getPrice());
 
-            String findSql = "SELECT * FROM products WHERE name = ? ORDER BY id DESC LIMIT 1;";
-            return jdbcTemplate.queryForObject(findSql, this::connectDBToProduct, product.getName());
+            Integer newId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID();", Integer.class);
+            if (newId != null) { product.setId(newId); }
+            return getById(product.getId());
+         } catch (Exception e) {
+            throw new DaoException("Failed to create product.");
+         }
+      }
+*/
+      public Product create(Product product) {
+         String sql = "INSERT INTO products (name, price) VALUES (?, ?);";
+         try {
+            org.springframework.jdbc.support.GeneratedKeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+               java.sql.PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+               ps.setString(1, product.getName());
+               ps.setBigDecimal(2, product.getPrice());
+               return ps;
+            }, keyHolder);
+
+            Number newId = keyHolder.getKey();
+            if (newId != null) {
+               product.setId(newId.intValue());
+            }
+            return getById(product.getId());
          } catch (Exception e) {
             throw new DaoException("Failed to create product.");
          }

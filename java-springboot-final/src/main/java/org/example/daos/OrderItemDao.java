@@ -2,6 +2,7 @@ package org.example.daos;
 
 import org.example.exceptions.DaoException;
 import org.example.models.OrderItem;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,6 +21,7 @@ public class OrderItemDao {
    // Required declaration and constructor for JDBC
    private final JdbcTemplate jdbcTemplate;
 
+   @Autowired
    public OrderItemDao(DataSource dataSource) {
       this.jdbcTemplate = new JdbcTemplate(dataSource);
    }
@@ -35,7 +37,7 @@ public class OrderItemDao {
    }
 
    // getById - Retrieves an order items by its id
-   public OrderItem getById(long id) {
+   public OrderItem getById(int id) {
       try {
          String sql = "SELECT * FROM order_items WHERE id = ?;";
          return jdbcTemplate.queryForObject(sql, this::connectDBToOrderItem, id);
@@ -48,9 +50,21 @@ public class OrderItemDao {
    public OrderItem create(OrderItem orderItem) {
       String sql = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?);";
       try {
-         jdbcTemplate.update(sql, orderItem.getOrderId(), orderItem.getProductId(), orderItem.getQuantity());
-         String findSql = "SELECT * FROM order_items WHERE order_id = ? ORDER BY id DESC LIMIT 1;";
-         return jdbcTemplate.queryForObject(findSql, this::connectDBToOrderItem, orderItem.getOrderId());
+         org.springframework.jdbc.support.GeneratedKeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+
+         jdbcTemplate.update(connection -> {
+            java.sql.PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, orderItem.getOrderId());
+            ps.setInt(2, orderItem.getProductId());
+            ps.setInt(3, orderItem.getQuantity());
+            return ps;
+         }, keyHolder);
+
+         Number newId = keyHolder.getKey();
+         if (newId != null) {
+            orderItem.setId(newId.intValue());
+         }
+         return getById(orderItem.getId());
       } catch (Exception e) {
          throw new DaoException("Failed to create order item.");
       }

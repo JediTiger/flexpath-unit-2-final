@@ -26,6 +26,7 @@ DONE: DELETE /products/{id} - Deletes a product by the id in the path and return
 // Fields are: id, name and price
 
 @RestController
+@CrossOrigin
 @RequestMapping({ "/products", "/api/products"} )
 @PreAuthorize("isAuthenticated()")
 // This controller will have classes that match those from the ProductDao

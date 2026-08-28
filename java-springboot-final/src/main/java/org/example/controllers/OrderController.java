@@ -24,6 +24,7 @@ DONE: DELETE /orders/{id} - Deletes an order by the id in the path and returns t
 // Fields are: id and username
 
 @RestController
+@CrossOrigin
 @RequestMapping({ "/orders", "/api/orders" })
 // TODO: From UserDao may need to correct
 @PreAuthorize("isAuthenticated()")

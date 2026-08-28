@@ -2,6 +2,7 @@ package org.example.daos;
 
 import org.example.exceptions.DaoException;
 import org.example.models.Order;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,6 +29,7 @@ public class OrderDao {
       // Required declaration and constructor for JDBC
       private final JdbcTemplate jdbcTemplate;
 
+      @Autowired
       public OrderDao(DataSource dataSource) {
          this.jdbcTemplate = new JdbcTemplate(dataSource);
       }
@@ -56,13 +58,24 @@ public class OrderDao {
       public Order create(Order order) {
          String sql = "INSERT INTO orders (username) VALUES (?);";
          try {
-            jdbcTemplate.update(sql, order.getUsername());
-            String findSql = "SELECT * FROM orders WHERE username = ? ORDER BY id DESC LIMIT 1;";
-            return jdbcTemplate.queryForObject(findSql, this::connectDBToOrder, order.getUsername());
+            org.springframework.jdbc.support.GeneratedKeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+               java.sql.PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+               ps.setString(1, order.getUsername());
+               return ps;
+            }, keyHolder);
+
+            Number newId = keyHolder.getKey();
+            if (newId != null) {
+               order.setId(newId.intValue());
+            }
+            return getById(order.getId());
          } catch (Exception e) {
             throw new DaoException("Failed to create order.");
          }
       }
+
       // update order - Updates an existing order in the table
       public Order update(Order order) {
          String sql = "UPDATE orders SET username = ? WHERE id = ?;";
